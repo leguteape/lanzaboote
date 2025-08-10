@@ -388,17 +388,26 @@ fn stub_name<S: Signer>(generation: &Generation, signer: &S) -> Result<PathBuf> 
     let stub_input_hash = Base32Unpadded::encode_string(&Sha256::digest(
         serde_json::to_string(&stub_inputs).unwrap(),
     ));
-    if let Some(specialisation_name) = &generation.specialisation_name {
-        Ok(PathBuf::from(format!(
-            "nixos-generation-{}-specialisation-{}-{}.efi",
-            generation, specialisation_name, stub_input_hash
-        )))
+
+    let mut efi_name = String::from("nixos");
+    efi_name = if &generation.profile == "system" {
+        format!("{efi_name}")
     } else {
-        Ok(PathBuf::from(format!(
-            "nixos-generation-{}-{}.efi",
-            generation, stub_input_hash
-        )))
-    }
+        format!("{}-{}", efi_name, &generation.profile)
+    };
+    efi_name = if let Some(specialisation_name) = &generation.specialisation_name {
+        format!(
+            "{}-generation-{}-specialisation-{}-{}.efi",
+            efi_name, generation, specialisation_name, stub_input_hash
+        )
+    } else {
+        format!(
+            "{}-generation-{}-{}.efi",
+            efi_name, generation, stub_input_hash
+        )
+    };
+
+    Ok(PathBuf::from(efi_name))
 }
 
 /// Install a PE file. The PE gets signed in the process.

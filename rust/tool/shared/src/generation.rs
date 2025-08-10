@@ -43,6 +43,8 @@ impl Default for LanzabooteExtension {
 /// of the generation link.
 #[derive(Debug, Clone)]
 pub struct Generation {
+    /// Profile symlink name
+    pub profile: String,
     /// Profile symlink index
     pub version: u64,
     /// Build time
@@ -70,6 +72,7 @@ impl Generation {
             .unwrap_or_default();
 
         Ok(Self {
+            profile: link.profile.clone(),
             version: link.version,
             build_time: link.build_time,
             specialisation_name: None,
@@ -97,6 +100,18 @@ impl Generation {
             format!("-{specialization}")
         } else {
             "".to_string()
+        }
+    }
+
+    /// Describe the generation profile name for humans.
+    ///
+    /// Emulates how NixOS's current systemd-boot-builder.py describes profile names
+    /// so that the user interface remains similar.
+    pub fn describe_profile(&self) -> String {
+        if &self.profile == "system" {
+            "".to_string()
+        } else {
+            format!(" [{}]", &self.profile)
         }
     }
 
@@ -145,6 +160,7 @@ fn read_build_time(path: &Path) -> Result<Date> {
 /// symlink encodes the version number.
 #[derive(Debug)]
 pub struct GenerationLink {
+    pub profile: String,
     pub version: u64,
     pub path: PathBuf,
     pub build_time: Option<Date>,
@@ -153,6 +169,7 @@ pub struct GenerationLink {
 impl GenerationLink {
     pub fn from_path(path: impl AsRef<Path>) -> Result<Self> {
         Ok(Self {
+            profile: parse_profile(&path).context("Failed to parse profile name")?,
             version: parse_version(&path).context("Failed to parse version")?,
             path: PathBuf::from(path.as_ref()),
             build_time: read_build_time(path.as_ref()).ok(),
@@ -160,15 +177,36 @@ impl GenerationLink {
     }
 }
 
+/// Parse profile name from a path.
+///
+/// Expects a path in the format of "{profile}-{version}-link".
+fn parse_profile(path: impl AsRef<Path>) -> Result<String> {
+    let generation_profile = path
+        .as_ref()
+        .file_name()
+        .and_then(|x| Some(x.to_str()?.split('-')))
+        .and_then(|x| {
+            Some(
+                x.clone()
+                    .take(x.count().saturating_sub(2))
+                    .collect::<Vec<_>>()
+                    .join("-"),
+            )
+        })
+        .with_context(|| format!("Failed to extract profile name from: {:?}", path.as_ref()))?;
+
+    Ok(generation_profile)
+}
+
 /// Parse version number from a path.
 ///
-/// Expects a path in the format of "system-{version}-link".
+/// Expects a path in the format of "{profile}-{version}-link".
 fn parse_version(path: impl AsRef<Path>) -> Result<u64> {
     let generation_version = path
         .as_ref()
         .file_name()
         .and_then(|x| x.to_str())
-        .and_then(|x| x.split('-').nth(1))
+        .and_then(|x| x.split('-').nth_back(1))
         .and_then(|x| x.parse::<u64>().ok())
         .with_context(|| format!("Failed to extract version from: {:?}", path.as_ref()))?;
 
@@ -178,6 +216,17 @@ fn parse_version(path: impl AsRef<Path>) -> Result<u64> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn parse_profile_correctly() {
+        let simple_path = Path::new("system-2-link");
+        let simple_parsed_profile = parse_profile(simple_path).unwrap();
+        assert_eq!(simple_parsed_profile, "system",);
+
+        let complex_path = Path::new("my-2nd-nixos-machine-3-link");
+        let complex_parsed_profile = parse_profile(complex_path).unwrap();
+        assert_eq!(complex_parsed_profile, "my-2nd-nixos-machine",);
+    }
 
     #[test]
     fn parse_version_correctly() {
