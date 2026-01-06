@@ -3,5 +3,5 @@ src = "docs"
 
 [output.html]
 git-repository-url = "https://github.com/nix-community/lanzaboote"
-git-repository-icon = "fa-code-fork"
+git-repository-icon = "fas-code-fork"
 edit-url-template = "https://github.com/nix-community/lanzaboote/edit/master/{path}"

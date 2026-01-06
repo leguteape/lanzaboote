@@ -27,7 +27,8 @@ When you are done, press F10 to save and exit.
 
 You can see these steps as a video [here](https://www.youtube.com/watch?v=aLuCAh7UzzQ).
 
-> ⚠️ Do not select "Clear All Secure Boot Keys" as it will drop the Forbidden
+> [!CAUTION]
+> **Don't** select "Clear All Secure Boot Keys" as it will drop the Forbidden
 > Signature Database (dbx).
 
 ### Framework Devices: Enter Setup Mode
@@ -37,7 +38,7 @@ On Framework laptops (13th generation or newer) you can enter the setup mode lik
 1. Select "Administer Secure Boot"
 2. Select "Erase all Secure Boot Settings"
 
-> [!WARNING]
+> [!CAUTION]
 > **Don't** select "Erase all Secure Boot Settings" in the Framework 13 Core Ultra Series 1 firmware.
 > This firmware is bugged, instead delete all keys from the "PK", "KEK" and "DB" sections manually.
 > See [this](https://community.frame.work/t/cant-enable-secure-boot-setup-mode/57683/5) thread on the Framework forum.
@@ -68,7 +69,8 @@ With vendor keys from microsoft...✓
 Enrolled keys to the EFI variables!
 ```
 
-> ⚠️ During boot, some hardware might include OptionROMs signed with
+> [!NOTE]
+> During boot, some hardware might include OptionROMs signed with
 > Microsoft keys.
 > By using the `--microsoft`, we enroll the Microsoft OEM certificates.
 > Another more experimental option would be to enroll OptionROMs checksum seen
@@ -87,7 +89,8 @@ System:
   Boot into FW: supported
 ```
 
-> ⚠️  If you used `--microsoft` while enrolling the keys, you might want
+> [!NOTE]
+> If you used `--microsoft` while enrolling the keys, you might want
 > to check that the Secure Boot Forbidden Signature Database (dbx) is not
 > empty.
 > A quick and dirty way is by checking the file size of
