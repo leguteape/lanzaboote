@@ -7,8 +7,9 @@ Secure Boot for NixOS is still in development and has some sharp
 edges. There may be cases where you end up with a system that does not
 boot.
 
-**We only recommend setting up Secure Boot to NixOS users that are comfortable
-using recovery tools to restore their system or have a backup ready.**
+> [!CAUTION]
+> **We only recommend setting up Secure Boot to NixOS users that are comfortable
+> using recovery tools to restore their system or have a backup ready.**
 
 At this point we have tested a few notebooks and are confident about Lenovo
 ThinkPads and Framework notebooks. However, Secure Boot support is known to be
