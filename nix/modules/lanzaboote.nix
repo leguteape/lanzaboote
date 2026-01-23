@@ -82,7 +82,7 @@ in
     package = lib.mkOption {
       type = lib.types.package;
       default = pkgs.lzbt;
-      defaultText = "pkgs.lzbt";
+      defaultText = lib.literalExpression "pkgs.lzbt";
       description = "Lanzaboote tool (lzbt) package";
     };
 
