@@ -52,20 +52,23 @@
       );
     in
     {
-      nixosModules.lanzaboote = (
-        { pkgs, ... }:
-        {
-          imports = [
-            ./nix/modules/lanzaboote.nix
-          ];
+      nixosModules = {
+        default = self.nixosModules.lanzaboote;
+        lanzaboote = (
+          { pkgs, ... }:
+          {
+            imports = [
+              ./nix/modules/lanzaboote.nix
+            ];
 
-          boot.lanzaboote.package =
-            let
-              system = pkgs.stdenv.hostPlatform.system;
-            in
-            self.packages.${system}.lzbt;
-        }
-      );
+            boot.lanzaboote.package =
+              let
+                system = pkgs.stdenv.hostPlatform.system;
+              in
+              self.packages.${system}.lzbt;
+          }
+        );
+      };
 
       packages = eachSystem (
         system: builtins.removeAttrs lanzaboote.${system}.packages [ "recurseForDerivations" ]
